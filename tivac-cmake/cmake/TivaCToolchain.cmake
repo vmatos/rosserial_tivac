@@ -13,6 +13,7 @@
 # 
 # With Arguments:
 #     USB     - Optional argument, if you wish to have rosserial over USB CDC device.
+#     DEBUG   - Optional argument, if you wish to enable the debug flag.
 #     BOARD   - Required. Takes one argument, tm4c123gxl or tm4c1294xl.
 #     DEVICE_SILICON  - Optional argument. Defines the specific chip's silicon revision.
 #     DEVICE_SERIAL  - Optional argument. Creates flash target for specific device.
@@ -125,7 +126,7 @@ endfunction()
 # Generates targets based on options and definitions
 function(GENERATE_TIVAC_FIRMWARE)
   message(STATUS "[TIVAC] Generating firmware ${CMAKE_PROJECT_NAME}")
-  set(options USB)
+  set(options USB DEBUG)
   set(oneValueArgs BOARD STARTUP DEVICE_SILICON DEVICE_SERIAL)
   set(multiValueArgs SRCS INCS LIBS)
   cmake_parse_arguments(INPUT "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -155,6 +156,11 @@ function(GENERATE_TIVAC_FIRMWARE)
     list(APPEND OTHER_LIBS usblib)
     list(APPEND OTHER_SRCS ${ROS_LIB_DIR}/usb_serial_structs.c)
     add_dependencies(usblib build_usblib)
+  endif()
+  
+  if(INPUT_DEBUG)
+    set(CMAKE_C_FLAGS "-g ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-g ${CMAKE_CXX_FLAGS}")
   endif()
   
   if(INPUT_STARTUP)
